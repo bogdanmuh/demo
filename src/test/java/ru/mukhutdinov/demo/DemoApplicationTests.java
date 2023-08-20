@@ -116,6 +116,8 @@ class DemoApplicationTests {
                 .isEqualTo("Поле recipientName не должно содержать чисел");
 
 
+
+
         result = this.mockMvc.perform(post("/registration")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
