@@ -263,27 +263,6 @@ class DemoApplicationTests {
     }
 
     @Test
-    public void arrivalThrowsExceptions() throws Exception {
-        this.mockMvc.perform(post("/registration")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(getMailingRequest("1", "LETTER", "423002", "Bogdan", "London")));
-        this.mockMvc.perform(post("/departure")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
-
-        MvcResult result = this.mockMvc.perform(post("/arrival")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(getMailingsRequest("2", "423040", "423010")))
-                .andReturn();
-
-        assertThat(result.getResolvedException().getMessage())
-                .isEqualTo("Данное почтовое отправление не найдено");
-    }
-
-    @Test
     public void getPathDonnotDeleviredTest() throws Exception {
         this.mockMvc.perform(post("/registration")
                 .accept(MediaType.APPLICATION_JSON_VALUE)

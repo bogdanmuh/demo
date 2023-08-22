@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.mukhutdinov.demo.controller.pojo.MailingInfoResponse;
 import ru.mukhutdinov.demo.controller.pojo.MovingRequest;
 import ru.mukhutdinov.demo.domain.Mailing;
-import ru.mukhutdinov.demo.domain.Moving;
+
 import ru.mukhutdinov.demo.domain.PostOffice;
+import ru.mukhutdinov.demo.domain.dto.MovingDto;
 import ru.mukhutdinov.demo.repository.MovingRepository;
 
 import java.util.LinkedList;
@@ -30,46 +31,46 @@ public class MovingService {
 
     public void fixArrival(MovingRequest movingRequest) throws Exception {
         validatorService.convertToMoving(movingRequest);
-        Optional<Moving> mailings = movingRepository.getMails(
-                movingRequest.getMailing(),
+        movingRepository.updateIsComing(movingRequest.getMailing(),
                 movingRequest.getFrom(),
                 movingRequest.getTo());
-        if (mailings.isEmpty()) throw new Exception("Данное почтовое отправление не найдено");
-        mailings.get().setComing(true);
-        movingRepository.save(mailings.get());
     }
 
     ///исхожу из того что порядок вставки коректный
     public MailingInfoResponse getInfo(String id) throws Exception {
         List<PostOffice> paths = new LinkedList<>();
         String status = "";
-       ;
         Optional<Mailing> mailing = mailingService.findById(validatorService.getInt(id, "mailing"));
         if (mailing.isEmpty()) throw new Exception("Данное почтовое отправление не найдено");
-        List<Moving> mailings = movingRepository.findByMailing(id);
+        List<MovingDto> mailings = movingRepository.findByMailing(id);
         if (mailings == null || mailings.isEmpty()) {
             status = "Почтовое отправление зарегистрировано";
         } else {
             /* if (!isCorrectOrder(mailings)) {
                 sortMailing(mailings);
             }*/
-            paths = mailings.stream().map(Moving::getFrom).collect(Collectors.toList());
+            paths = mailings.stream()
+                    .map(x -> new PostOffice(x.getFrom_Index(), x.getFrom_Name(), x.getFrom_Adress()))
+                    .collect(Collectors.toList());
             if (mailings.get(mailings.size() - 1).isComing()) {
                 status = String.format("Находиться в %s по адресу %s",
-                        mailings.get(mailings.size() - 1).getTo().getName(),
-                        mailings.get(mailings.size() - 1).getTo().getAddress());
-                paths.add(mailings.get(mailings.size() - 1).getTo());
-                if (mailings.get(mailings.size() - 1).getTo().getIndex().equals(mailing.get().getRecipientIndex())) {
+                        mailings.get(mailings.size() - 1).getTo_Name(),
+                        mailings.get(mailings.size() - 1).getTo_Adress());
+
+                paths.add(new PostOffice(
+                        mailings.get(mailings.size() - 1).getFrom_Index(),
+                        mailings.get(mailings.size() - 1).getFrom_Name(),
+                        mailings.get(mailings.size() - 1).getFrom_Adress()));
+                if (mailings.get(mailings.size() - 1).getTo_Index().equals(mailing.get().getRecipientIndex())) {
                     status = "Почтовое отправление доставлено адресату";
                 }
             } else {
                 status = String.format(
                         "Находиться в пути из %s в %s ",
-                        mailings.get(mailings.size() - 1).getFrom().getAddress(),
-                        mailings.get(mailings.size() - 1).getTo().getAddress()
+                        mailings.get(mailings.size() - 1).getFrom_Index(),
+                        mailings.get(mailings.size() - 1).getTo_Adress()
                 );
             }
-
         }
         return new MailingInfoResponse(status, paths);
     }

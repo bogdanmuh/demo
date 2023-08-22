@@ -20,13 +20,19 @@ public class Moving {
     @JoinColumn(name = "mailing_id")
     private Mailing mailing;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_id")
     private PostOffice from;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_id")
     private PostOffice to;
+
+    @Column(name = "from_id", insertable = false, updatable = false)
+    private Integer from_id_fk;
+
+    @Column(name = "to_id", insertable = false, updatable = false)
+    private Integer to_id_fk;
 
     private boolean isComing;
 
