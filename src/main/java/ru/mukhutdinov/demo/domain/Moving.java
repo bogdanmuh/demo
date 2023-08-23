@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "moving")
 @Getter
@@ -27,19 +29,21 @@ public class Moving {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_id")
     private PostOffice to;
-
+    private Date date_departure;
+    private Date date_arrival;
     @Column(name = "from_id", insertable = false, updatable = false)
     private Integer from_id_fk;
 
     @Column(name = "to_id", insertable = false, updatable = false)
     private Integer to_id_fk;
 
-    private boolean isComing;
-
-    public Moving(Mailing mailing, PostOffice from, PostOffice to, boolean isComing) {
+    public Moving(Mailing mailing, PostOffice from, PostOffice to, Date date_departure, Date date_arrival) {
         this.mailing = mailing;
         this.from = from;
         this.to = to;
-        this.isComing = isComing;
+        this.date_departure = date_departure;
+        this.date_arrival = date_arrival;
     }
+
+
 }

@@ -24,6 +24,8 @@ import ru.mukhutdinov.demo.repository.MailingRepository;
 import ru.mukhutdinov.demo.repository.MovingRepository;
 import ru.mukhutdinov.demo.repository.PostOfficeRepository;
 
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -185,7 +187,7 @@ class DemoApplicationTests {
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
+                .content(getMailingsRequest("1", "423040", "423010", new Date())));
 
         assertThat(mailingRepository.findAll())
                 .hasSize(1)
@@ -197,7 +199,7 @@ class DemoApplicationTests {
                         x.getTo().getIndex().equals("1") &&
                                 x.getFrom().getIndex().equals("423040") &&
                                 x.getMailing().equals("423010") &&
-                                !x.isComing()
+                                x.getDate_arrival() == null
                 );
     }
 
@@ -212,7 +214,7 @@ class DemoApplicationTests {
         MvcResult result = this.mockMvc.perform(post("/departure")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(getMailingsRequest("1", "423040", "")))
+                        .content(getMailingsRequest("1", "423040", "", new Date())))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -222,7 +224,7 @@ class DemoApplicationTests {
         result = this.mockMvc.perform(post("/departure")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(getMailingsRequest("1", "423040", "12")))
+                        .content(getMailingsRequest("1", "423040", "12", new Date())))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -239,12 +241,12 @@ class DemoApplicationTests {
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
+                .content(getMailingsRequest("1", "423040", "423010",new Date(1))));
 
         this.mockMvc.perform(post("/arrival")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
+                .content(getMailingsRequest("1", "423040", "423010", new Date(10))));
 
 
         assertThat(mailingRepository.findAll())
@@ -257,13 +259,13 @@ class DemoApplicationTests {
                         x.getTo().getIndex().equals("1") &&
                                 x.getFrom().equals("423040") &&
                                 x.getMailing().equals("423010") &&
-                                x.isComing()
+                                x.getDate_arrival() == null
                 );
 
     }
 
     @Test
-    public void getPathDonnotDeleviredTest() throws Exception {
+    public void  getPathDonnotDeleviredTest() throws Exception {
         this.mockMvc.perform(post("/registration")
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -289,7 +291,7 @@ class DemoApplicationTests {
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
+                .content(getMailingsRequest("1", "423040", "423010",new Date())));
 
         MvcResult result = this.mockMvc.perform(get("/getPath")
                         .accept(MediaType.APPLICATION_JSON)
@@ -310,42 +312,42 @@ class DemoApplicationTests {
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
+                .content(getMailingsRequest("1", "423040", "423010", new Date(10))));
 
         this.mockMvc.perform(post("/arrival")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423040", "423010")));
+                .content(getMailingsRequest("1", "423040", "423010", new Date(20))));
 
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423010", "423000")));
+                .content(getMailingsRequest("1", "423010", "423000", new Date(30))));
 
         this.mockMvc.perform(post("/arrival")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423010", "423000")));
+                .content(getMailingsRequest("1", "423010", "423000", new Date(30))));
 
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423000", "423001")));
+                .content(getMailingsRequest("1", "423000", "423001", new Date(40))));
 
         this.mockMvc.perform(post("/arrival")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423000", "423001")));
+                .content(getMailingsRequest("1", "423000", "423001", new Date(50))));
 
         this.mockMvc.perform(post("/departure")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423001", "423002")));
+                .content(getMailingsRequest("1", "423001", "423002", new Date(60))));
 
         this.mockMvc.perform(post("/arrival")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getMailingsRequest("1", "423001", "423002")));
+                .content(getMailingsRequest("1", "423001", "423002", new Date(70))));
 
         MvcResult result = this.mockMvc.perform(get("/getPath")
                         .accept(MediaType.APPLICATION_JSON)
@@ -375,10 +377,12 @@ class DemoApplicationTests {
 
     private String getMailingsRequest(String mailing,
                                       String from,
-                                      String to) throws Exception {
+                                      String to,
+                                      Date date) throws Exception {
         MovingRequest request = new MovingRequest(mailing,
                 from,
-                to);
+                to,
+                date);
         return getContent(request);
     }
 

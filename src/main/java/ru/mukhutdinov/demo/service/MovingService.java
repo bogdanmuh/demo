@@ -11,9 +11,7 @@ import ru.mukhutdinov.demo.domain.PostOffice;
 import ru.mukhutdinov.demo.domain.dto.MovingDto;
 import ru.mukhutdinov.demo.repository.MovingRepository;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +31,8 @@ public class MovingService {
         validatorService.convertToMoving(movingRequest);
         movingRepository.updateIsComing(movingRequest.getMailing(),
                 movingRequest.getFrom(),
-                movingRequest.getTo());
+                movingRequest.getTo(),
+                movingRequest.getDate());
     }
 
     ///исхожу из того что порядок вставки коректный
@@ -52,7 +51,7 @@ public class MovingService {
             paths = mailings.stream()
                     .map(x -> new PostOffice(x.getFrom_Index(), x.getFrom_Name(), x.getFrom_Adress()))
                     .collect(Collectors.toList());
-            if (mailings.get(mailings.size() - 1).isComing()) {
+            if (mailings.get(mailings.size() - 1).getTo_Date() != null) {
                 status = String.format("Находиться в %s по адресу %s",
                         mailings.get(mailings.size() - 1).getTo_Name(),
                         mailings.get(mailings.size() - 1).getTo_Adress());
@@ -75,17 +74,54 @@ public class MovingService {
         return new MailingInfoResponse(status, paths);
     }
 
-    /*private boolean isCorrectOrder(List<Mailings> mailings) {
+   /* private boolean isCorrectOrder(List<MovingDto> mailings) {
         for (int i = 0; i < mailings.size() - 1; i++) {
-            if (!mailings.get(i).getTo().equals(mailings.get(i + 1).getFrom())) {
+            if (!mailings.get(i).getFrom_Index().equals(mailings.get(i + 1).getTo_Index())) {
                 return false;
             }
         }
         return true;
     }
 
-    private void sortMailing(List<Mailings> mailings) {
+    private List<MovingDto> sortMailing(List<MovingDto> mailings) {
         int i = 0;
+        LinkedList <MovingDto> sortList = new LinkedList<>();
+        Map <Integer, Pair<Integer, MovingDto>> container = new HashMap<>();
+        sortList.add(mailings.get(0));
+
+        for (int j = 1; j < mailings.size(); j++) {
+            if (sortList.getFirst().getTo_Index().equals(mailings.get(j).getFrom_Index())) {
+                sortList.addFirst(mailings.get(j));
+            } else if (sortList.getLast().getFrom_Index().equals(mailings.get(j).getTo_Index())) {
+                sortList.addLast(mailings.get(j));
+            } else {
+                if (container.containsKey(mailings.get(j).getFrom_Index())){
+                    container.get(mailings.get(j).getFrom_Index()).
+                } else {
+
+                }
+
+                container.put(mailings.get(j).getTo_Index(), Pair.of(1,mailings.get(j)));
+            }
+
+            while (container.containsKey(sortList.getFirst().getTo_Index())) {
+                //проверка
+                sortList.add(container.get(sortList.getFirst().getTo_Index()).getSecond());
+            }
+
+            while (container.containsKey(sortList.getLast().getFrom_Index())){
+                //проверка
+                sortList.add(container.get(sortList.getLast().getFrom_Index()).getSecond());
+            }
+        }
+
+        while () {
+                        else if (container.containsKey(mailings.get(j).getTo_Index())) {
+
+            } else if (container.containsKey(mailings.get(j).getFrom_Index())) {
+
+            }
+        }
         if (mailings.size() > 2) {
             while (i < mailings.size() - 2) {
                 Mailings current = mailings.get(i);
@@ -97,5 +133,6 @@ public class MovingService {
                 }
             }
         }
+
     }*/
 }

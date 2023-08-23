@@ -75,7 +75,7 @@ public class ValidatorRequestService {
         Mailing mailing = new Mailing();
         mailing.setId(getInt(mailingRequest.getMailing(),"mailing"));
 
-        return new Moving(mailing, from, to, false);
+        return new Moving(mailing, from, to, mailingRequest.getDate(), null);
     }
 
     public int getCorrectIndex (String value, String key) throws ValidatorException {
