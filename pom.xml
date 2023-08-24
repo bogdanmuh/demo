@@ -10,7 +10,7 @@
     </parent>
     <groupId>ru.mukhutdinov</groupId>
     <artifactId>demo</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>war</packaging>
     <name>demo</name>
     <description>demo</description>

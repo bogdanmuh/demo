@@ -38,7 +38,7 @@ public class MovingService {
     ///исхожу из того что порядок вставки коректный
     public MailingInfoResponse getInfo(String id) throws Exception {
         List<PostOffice> paths = new LinkedList<>();
-        String status = "";
+        String status;
         Optional<Mailing> mailing = mailingService.findById(validatorService.getInt(id, "mailing"));
         if (mailing.isEmpty()) throw new Exception("Данное почтовое отправление не найдено");
         List<MovingDto> mailings = movingRepository.findByMailing(id);
@@ -51,23 +51,24 @@ public class MovingService {
             paths = mailings.stream()
                     .map(x -> new PostOffice(x.getFrom_Index(), x.getFrom_Name(), x.getFrom_Adress()))
                     .collect(Collectors.toList());
-            if (mailings.get(mailings.size() - 1).getTo_Date() != null) {
+            MovingDto lastPoint = mailings.get(mailings.size() - 1);
+            if (lastPoint.getTo_Date() != null) {
                 status = String.format("Находиться в %s по адресу %s",
-                        mailings.get(mailings.size() - 1).getTo_Name(),
-                        mailings.get(mailings.size() - 1).getTo_Adress());
+                        lastPoint.getTo_Name(),
+                        lastPoint.getTo_Adress());
 
                 paths.add(new PostOffice(
-                        mailings.get(mailings.size() - 1).getFrom_Index(),
-                        mailings.get(mailings.size() - 1).getFrom_Name(),
-                        mailings.get(mailings.size() - 1).getFrom_Adress()));
-                if (mailings.get(mailings.size() - 1).getTo_Index().equals(mailing.get().getRecipientIndex())) {
+                        lastPoint.getFrom_Index(),
+                        lastPoint.getFrom_Name(),
+                        lastPoint.getFrom_Adress()));
+                if (lastPoint.getTo_Index().equals(mailing.get().getRecipientIndex())) {
                     status = "Почтовое отправление доставлено адресату";
                 }
             } else {
                 status = String.format(
                         "Находиться в пути из %s в %s ",
-                        mailings.get(mailings.size() - 1).getFrom_Index(),
-                        mailings.get(mailings.size() - 1).getTo_Adress()
+                        lastPoint.getFrom_Index(),
+                        lastPoint.getTo_Adress()
                 );
             }
         }
